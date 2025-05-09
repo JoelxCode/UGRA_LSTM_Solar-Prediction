@@ -87,6 +87,7 @@ axs.plot(y_pred_orig[0:150])
 title = "Train From " + str(solar_Xdata.shape[1]) + " Inputs\n" + "Epochs: " + str(setEpoch) + ". Avg MAE Error: " + str(f"{mae:.2f}")
 fig.suptitle(title)
 
+
 # Save Graph as PNG
 filename = "Inputs_" + str(solar_Xdata.shape[1]) + "_Epochs_" + str(setEpoch)
 filepath = 'Images/'
