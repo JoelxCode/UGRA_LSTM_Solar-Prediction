@@ -11,7 +11,7 @@ from keras.layers import Dense, LSTM
 from keras.optimizers import Adam
 import os
 import sys
-!{sys.executable} -m pip install seaborn
+
 
 # %%
 #specify the learning rate
