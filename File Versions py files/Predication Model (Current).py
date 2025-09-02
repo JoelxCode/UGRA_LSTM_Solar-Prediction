@@ -24,9 +24,6 @@ print(curr_dir)
 # Load Dataset
 df = pd.read_csv('BigData.csv')
 
-#This portion of the code specifies the learning rate. 
-
-
 # %%
 #Time Series Line Plot
 df.plot(subplots=True, figsize=(12, 8), title="Feature Time Series")
