@@ -61,7 +61,7 @@ solar_model.add(Dense(units=1))
 setEpoch = 50
 
 # create the optimizer with the desired learning rate
-adam_optimizer = Adam(lr = learning_rate)
+adam_optimizer = Adam(learning_rate = learning_rate)
 solar_model.compile(optimizer=adam_optimizer, loss='mean_absolute_error')
 solar_model.fit(X_train, y_train, epochs = setEpoch, batch_size = 32)
 

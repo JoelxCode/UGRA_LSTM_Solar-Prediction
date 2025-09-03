@@ -21,7 +21,7 @@ curr_dir = os.getcwd()
 print(curr_dir)
 
 
-# Load Dataset
+# Load Dataset %%
 df = pd.read_csv('BigData.csv')
 
 # %%
@@ -48,7 +48,7 @@ for col in df.columns:
 #clear to utilize the MinMaxScalar
 
 # %%
-#plotted the features to make sure there are not missing data points. 
+#plotted the feachecking outliers in all of mym coe ?tures to make sure there are not missing data points. 
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
