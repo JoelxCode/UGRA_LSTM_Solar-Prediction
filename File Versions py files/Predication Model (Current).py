@@ -21,7 +21,7 @@ curr_dir = os.getcwd()
 print(curr_dir)
 
 
-# Load Dataset %%
+#  %%
 df = pd.read_csv('BigData.csv')
 
 # %%
@@ -54,7 +54,7 @@ import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 import numpy as np
 
-# Load your dataset
+# %%Load your dataset
 df = pd.read_csv('MedData.csv')  # or your actual filename
 
 # Parameters
