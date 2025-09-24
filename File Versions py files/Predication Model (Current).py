@@ -12,6 +12,10 @@ from keras.optimizers import Adam
 import os
 import sys
 
+import os, glob
+print(os.path.exists(r"C:\Users\nnaji\OneDrive\Documents\GitHub\UGRA_LSTM_Solar-Prediction\File Versions py files\UGRA Onenote"))
+print(glob.glob(r"C:\Users\nnaji\OneDrive\Documents\GitHub\UGRA_LSTM_Solar-Prediction\*"))
+
 
 # %%
 #specify the learning rate
@@ -22,7 +26,14 @@ print(curr_dir)
 
 
 #  %%
-df = pd.read_csv('BigData.csv')
+# avoid changing cwd to a folder without the CSV; pick the CSV explicitly
+data_dir = r"C:\Users\nnaji\OneDrive\Documents\GitHub\UGRA_LSTM_Solar-Prediction\File Versions py files"
+csv_path = os.path.join(data_dir, "BigData.csv")
+if not os.path.isfile(csv_path):
+    raise FileNotFoundError(f"BigData.csv not found at {csv_path}")
+print("Loading dataset:", csv_path)
+df = pd.read_csv(csv_path)
+
 
 # %%
 #Time Series Line Plot
@@ -55,7 +66,7 @@ import matplotlib.cm as cm
 import numpy as np
 
 # %%Load your dataset
-df = pd.read_csv('MedData.csv')  # or your actual filename
+df = pd.read_csv(csv_path)  # or your actual filename
 
 # Parameters
 features_per_fig = 4
@@ -181,9 +192,9 @@ solar_model.add(Dense(units=1))
 setEpoch = 50
 
 # create the optimizer with the desired learning rate
-adam_optimizer = Adam(lr = learning_rate)
+adam_optimizer = Adam(learning_rate=learning_rate)   # use 'learning_rate' not 'lr'
 solar_model.compile(optimizer=adam_optimizer, loss='mean_absolute_error')
-solar_model.fit(X_train, y_train, epochs = setEpoch, batch_size = 32)
+solar_model.fit(X_train, y_train, epochs=setEpoch, batch_size=32)
 
 # %%
 # Run Prediction
@@ -191,8 +202,10 @@ y_pred = solar_model.predict(X_test)
 y_pred_orig = y_scaler.inverse_transform(y_pred)
 y_test_orig = y_scaler.inverse_transform(y_test.reshape(-1,1))
 
+# Evaluate Error (compute MAE before using it in a title)
+mae = mean_absolute_error(y_test_orig, y_pred_orig)
+
 # Display / Graph
-# Figure labels
 fig, axs = plt.subplots()
 fig.supxlabel("Time [3 days]")
 fig.supylabel("DC Power [MW]")
@@ -201,32 +214,36 @@ axs.plot(y_test_orig[0:150], label="Actual")
 axs.plot(y_pred_orig[0:150], label="Predicted")
 axs.legend()
 
-# Add title with epoch and error info
 title = f"Train From {X_train.shape[2]} Inputs\nEpochs: {setEpoch}, Avg MAE Error: {mae:.2f}"
 fig.suptitle(title)
 
 plt.tight_layout()
 plt.show()
 
-# %%
-
-
-# %%
-# Evaluate Error
+# %% Evaluate Error and save a new figure (create fresh figure)
 mae = mean_absolute_error(y_test_orig, y_pred_orig)
 
-# Display
-axs.plot(y_test_orig[0:150])
-axs.plot(y_pred_orig[0:150])
+# Create a new figure for saving/extra display
+fig2, ax2 = plt.subplots(figsize=(8,4))
+ax2.plot(y_test_orig[0:150], label="Actual")
+ax2.plot(y_pred_orig[0:150], label="Predicted")
+ax2.legend()
+ax2.set_xlabel("Time step")
+ax2.set_ylabel("DC Power [MW]")
 
-# Title Graph with Epochs and Error
-title = "Train From " + str(solar_Xdata.shape[1]) + " Inputs\n" + "Epochs: " + str(setEpoch) + ". Avg MAE Error: " + str(f"{mae:.2f}")
-fig.suptitle(title)
+title = f"Train From {solar_Xdata.shape[1]} Inputs — Epochs: {setEpoch}, Avg MAE: {mae:.2f}"
+fig2.suptitle(title)
+plt.tight_layout()
 
-# Save Graph as PNG
-filename = "Inputs_" + str(solar_Xdata.shape[1]) + "_Epochs_" + str(setEpoch)
-filepath = 'Images/'
-plt.savefig(curr_dir + "\\" +filename)
+# Ensure Images directory exists and save as PNG
+out_dir = os.path.join(curr_dir, "Images")
+os.makedirs(out_dir, exist_ok=True)
+filename = f"Inputs_{solar_Xdata.shape[1]}_Epochs_{setEpoch}.png"
+save_path = os.path.join(out_dir, filename)
+fig2.savefig(save_path)
+print("Saved plot to:", save_path)
+
 plt.show()
+plt.close(fig2)
 
 
