@@ -11,6 +11,7 @@ from keras.layers import Dense, LSTM
 from keras.optimizers import Adam
 import os
 import sys
+from sklearn.decomposition import PCA
 
 import os, glob
 print(os.path.exists(r"C:\Users\nnaji\OneDrive\Documents\GitHub\UGRA_LSTM_Solar-Prediction\File Versions py files\UGRA Onenote"))
@@ -169,6 +170,112 @@ X, y = np.array(X), np.array(y)
 print("X shape:", X.shape)
 print("y shape:", y.shape)
 
+
+# Split data into training and testing sets
+train_size = int(0.8 * len(y))
+X_train, X_test = X[:train_size], X[train_size:]
+y_train, y_test = y[:train_size], y[train_size:]
+
+# Reshape for LSTM layer
+##X_train = np.reshape(X_train, (X_train.shape[0], X_train.shape[1],1))
+##X_test = np.reshape(X_test, (X_test.shape[0], X_test.shape[1],1))
+
+
+# %%
+# Build LSTM Model
+solar_model = Sequential()
+solar_model.add(LSTM(units = 50, return_sequences=True, input_shape=(X_train.shape[1], X_train.shape[2])))
+solar_model.add(LSTM(units = 50))
+solar_model.add(Dense(units=1))
+
+# Create Model
+# set Epoch number
+setEpoch = 50
+
+# create the optimizer with the desired learning rate
+adam_optimizer = Adam(learning_rate=learning_rate)   # use 'learning_rate' not 'lr'
+solar_model.compile(optimizer=adam_optimizer, loss='mean_absolute_error')
+solar_model.fit(X_train, y_train, epochs=setEpoch, batch_size=32)
+
+# %%
+# Run Prediction
+y_pred = solar_model.predict(X_test)
+y_pred_orig = y_scaler.inverse_transform(y_pred)
+y_test_orig = y_scaler.inverse_transform(y_test.reshape(-1,1))
+
+# Evaluate Error (compute MAE before using it in a title)
+mae = mean_absolute_error(y_test_orig, y_pred_orig)
+
+# Display / Graph
+fig, axs = plt.subplots()
+fig.supxlabel("Time [3 days]")
+fig.supylabel("DC Power [MW]")
+
+axs.plot(y_test_orig[0:150], label="Actual")
+axs.plot(y_pred_orig[0:150], label="Predicted")
+axs.legend()
+
+title = f"Train From {X_train.shape[2]} Inputs\nEpochs: {setEpoch}, Avg MAE Error: {mae:.2f}"
+fig.suptitle(title)
+
+plt.tight_layout()
+plt.show()
+
+# %% Evaluate Error and save a new figure (create fresh figure)
+mae = mean_absolute_error(y_test_orig, y_pred_orig)
+
+# Create a new figure for saving/extra display
+fig2, ax2 = plt.subplots(figsize=(8,4))
+ax2.plot(y_test_orig[0:150], label="Actual")
+ax2.plot(y_pred_orig[0:150], label="Predicted")
+ax2.legend()
+ax2.set_xlabel("Time step")
+ax2.set_ylabel("DC Power [MW]")
+
+title = f"Train From {solar_Xdata.shape[1]} Inputs — Epochs: {setEpoch}, Avg MAE: {mae:.2f}"
+fig2.suptitle(title)
+plt.tight_layout()
+
+# Ensure Images directory exists and save as PNG
+out_dir = os.path.join(curr_dir, "Images")
+os.makedirs(out_dir, exist_ok=True)
+filename = f"Inputs_{solar_Xdata.shape[1]}_Epochs_{setEpoch}.png"
+save_path = os.path.join(out_dir, filename)
+fig2.savefig(save_path)
+print("Saved plot to:", save_path)
+
+plt.show()
+plt.close(fig2)
+
+# After normalization
+# solar_XdataN = X_scaler.fit_transform(solar_Xdata)
+# solar_ydataN = y_scaler.fit_transform(solar_ydata)
+
+# Apply PCA to normalized features (excluding the target)
+n_components = 3  # Set to desired number of principal components
+pca = PCA(n_components=n_components)
+solar_XdataN_pca = pca.fit_transform(solar_XdataN)
+
+print("Explained variance ratio:", pca.explained_variance_ratio_)
+
+# If you want to plot the first two components:
+plt.figure(figsize=(8,6))
+plt.scatter(solar_XdataN_pca[:, 0], solar_XdataN_pca[:, 1], c=solar_ydataN.flatten(), cmap='viridis', alpha=0.5)
+plt.xlabel('Principal Component 1')
+plt.ylabel('Principal Component 2')
+plt.title('PCA Projection of Features')
+plt.colorbar(label='Normalized POWER')
+plt.show()
+
+# Use PCA-transformed features for sequence creation
+solar_XdataN_for_seq = solar_XdataN_pca
+
+# ...then continue as before, but use solar_XdataN_for_seq instead of solar_XdataN:
+X, y = [], []
+for i in range(24, len(solar_ydataN)):
+    X.append(solar_XdataN_for_seq[i-24:i, :])
+    y.append(solar_ydataN[i, 0])
+X, y = np.array(X), np.array(y)
 
 # Split data into training and testing sets
 train_size = int(0.8 * len(y))
