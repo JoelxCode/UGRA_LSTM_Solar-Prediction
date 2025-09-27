@@ -4,7 +4,7 @@ Run tuning summary
 Run config:
 {
   "run_id": "branch-name:commit-hash",
-  "date_time": "2025-09-24 11:13:45",
+  "date_time": "2025-09-26 16:07:49",
   "features_used": [
     "CDHI",
     "CDNI",
@@ -37,9 +37,9 @@ Results:
 {
   "run_id": "branch-name:commit-hash",
   "training_time_s": null,
-  "train_loss": 0.03636094555258751,
-  "val_loss": 0.03763332590460777,
-  "test_MAE": 3.8872071264330827,
+  "train_loss": 2.613236904144287,
+  "val_loss": 4.359809398651123,
+  "test_MAE": 6.986245418715477,
   "test_MSE": null,
   "test_RMSE": null,
   "test_R2": null,
