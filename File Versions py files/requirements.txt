@@ -1,9 +1,0 @@
-numpy
-pandas
-matplotlib
-seaborn
-scikit-learn
-tensorflow          # or: tensorflow-cpu  (CPU-only)
-ipykernel           # to use this env as a Jupyter kernel
-keras
-seaborn
